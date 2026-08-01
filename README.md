@@ -122,12 +122,6 @@ Implemented behavior:
 time=YYYY-MM-DD HH:00/station_id=N/<timestamp>.parquet
 ```
 
-Override the Parquet root with:
-
-```text
-PARQUET_DIR=/some/path
-```
-
 ## HTTP API
 
 The central station exposes a small HTTP API on port `8080`.
