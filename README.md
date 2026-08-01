@@ -108,12 +108,6 @@ The Bitcask directory defaults to:
 ./data/bitcask
 ```
 
-Override it with:
-
-```text
-BITCASK_DIR=/some/path
-```
-
 ### Parquet History
 
 `central-station` also batches records and writes them to Snappy-compressed Parquet files.
