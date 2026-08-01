@@ -1,0 +1,340 @@
+# Persistent Storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: weather-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+# RAIN DETECTOR DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rain-detector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rain-detector
+  template:
+    metadata:
+      labels:
+        app: rain-detector
+    spec:
+      containers:
+      - name: rain-detector
+        image: rain-detector:1.0
+        imagePullPolicy: Never # Forces Minikube to use the local image we loaded!
+        env:
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+
+# Central Station Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: central-station
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: central-station
+  template:
+    metadata:
+      labels:
+        app: central-station
+    spec:
+      containers:
+      - name: central-station
+        image: central-station:1.1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-XX:StartFlightRecording=duration=60s,filename=/app/data/profile.jfr,settings=profile"
+        volumeMounts:
+        - name: weather-data
+          mountPath: /app/data
+      volumes:
+      - name: weather-data
+        persistentVolumeClaim:
+          claimName: weather-data-pvc
+
+# Central Station Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: central-station
+spec:
+  selector:
+    app: central-station
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
+
+---
+# WEATHER STATION 1 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-1
+  template:
+    metadata:
+      labels:
+        app: station-1
+    spec:
+      containers:
+      - name: station-1
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "1"
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+---
+# WEATHER STATION 2 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-2
+  template:
+    metadata:
+      labels:
+        app: station-2
+    spec:
+      containers:
+      - name: station-2
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "2"
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+
+---
+# WEATHER STATION 3 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-3
+  template:
+    metadata:
+      labels:
+        app: station-3
+    spec:
+      containers:
+      - name: station-3
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "3"  
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+
+---
+# WEATHER STATION 4 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-4
+  template:
+    metadata:
+      labels:
+        app: station-4
+    spec:
+      containers:
+      - name: station-4
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "4"  
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+---
+# WEATHER STATION 5 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-5
+  template:
+    metadata:
+      labels:
+        app: station-5
+    spec:
+      containers:
+      - name: station-5
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "5"  
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+---
+# WEATHER STATION 6 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-6
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-6
+  template:
+    metadata:
+      labels:
+        app: station-6
+    spec:
+      containers:
+      - name: station-6
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "6"  
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+---
+# WEATHER STATION 7 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-7
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-7
+  template:
+    metadata:
+      labels:
+        app: station-7
+    spec:
+      containers:
+      - name: station-7
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "7"  
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+---
+# WEATHER STATION 8 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-8
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-8
+  template:
+    metadata:
+      labels:
+        app: station-8
+    spec:
+      containers:
+      - name: station-8
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "8"  
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+---
+# WEATHER STATION 9 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-9
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-9
+  template:
+    metadata:
+      labels:
+        app: station-9
+    spec:
+      containers:
+      - name: station-9
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "9"  
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"
+---
+# WEATHER STATION 10 DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station-10
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: station-10
+  template:
+    metadata:
+      labels:
+        app: station-10
+    spec:
+      containers:
+      - name: station-10
+        image: weather-station:1.0
+        imagePullPolicy: Never
+        env:
+        - name: STATION_ID
+          value: "10"  
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka:9092"

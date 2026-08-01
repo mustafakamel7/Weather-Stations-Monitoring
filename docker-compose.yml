@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  kafka:
+    image: apache/kafka:3.7.0
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_INTERNAL://0.0.0.0:29092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT_INTERNAL
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_LOG_DIRS=/var/lib/kafka/data
+      - CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  station-1:
+    image: weather-station:1.0
+    environment: [STATION_ID=1, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  station-2:
+    image: weather-station:1.0
+    environment: [STATION_ID=2, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  station-3:
+    image: weather-station:1.0
+    environment: [STATION_ID=3, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  station-4:
+    image: weather-station:1.0
+    environment: [STATION_ID=4, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  station-5:
+    image: weather-station:1.0
+    environment: [STATION_ID=5, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  station-6:
+    image: weather-station:1.0
+    environment: [STATION_ID=6, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  station-7:
+    image: weather-station:1.0
+    environment: [STATION_ID=7, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  station-8:
+    image: weather-station:1.0
+    environment: [STATION_ID=8, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  station-9:
+    image: weather-station:1.0
+    environment: [STATION_ID=9, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  station-10:
+    image: weather-station:1.0
+    environment: [STATION_ID=10, KAFKA_BOOTSTRAP=kafka:29092]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  rain-detector:
+    image: rain-detector:1.0
+    environment:
+      - KAFKA_BOOTSTRAP=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+        
+  elasticsearch:
+    image: elasticsearch:8.10.4
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: kibana:8.10.4
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  central-station:
+    image: central-station:1.0
+    environment:
+      - KAFKA_BOOTSTRAP=kafka:29092
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./central-station/data:/app/data
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  openmeteo-adapter:
+    image: openmeteo-adapter:1.0
+    environment:
+      - KAFKA_BOOTSTRAP=kafka:29092
+      - LATITUDE=30.0444
+      - LONGITUDE=31.2357
+    depends_on:
+      kafka:
+        condition: service_healthy
